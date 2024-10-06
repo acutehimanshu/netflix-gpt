@@ -5,14 +5,9 @@ import BGIMAGE from '../images/bg.jpg'
 import USERIMAGE from '../images/netflix-user.jpg'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile  } from "firebase/auth";
 import { firebaseAuth } from '../utils/firebase';
-import { useDispatch } from 'react-redux';
-import { addUser } from '../utils/userSlice';
-import { useNavigate } from 'react-router-dom';
 //const auth = getAuth(); // we can also store this in firebase.js file if you dont want again and agian
 
 const Login = () => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
     const [isSignInForm ,setIsSignInForm] = useState(true);
     const [errorMessage ,setErrorMessage] = useState(null);
     const updateSignInFormStatus = ()=>{
@@ -28,11 +23,11 @@ const Login = () => {
             const isValid = validateLogin(email.current.value, password.current.value);
             setErrorMessage(isValid);
             if(isValid !== null) return;
-            signInWithEmailAndPassword(firebaseAuth, email.current.value, password.current.value).then((userCredential) => {
-                const {uid, email, displayName, photoURL} = userCredential.user;
-                dispatch(addUser({uid:uid, email:email, name:displayName, profile:photoURL}));
-                navigate("/browse");
-            }).catch((error) => {
+                signInWithEmailAndPassword(firebaseAuth, email.current.value, password.current.value)
+                .then((userCredential) => {
+                    // const {uid, email, displayName, photoURL} = userCredential.user;
+                    // dispatch(addUser({uid:uid, email:email, name:displayName, profile:photoURL}));
+                }).catch((error) => {
                 setErrorMessage(error.message);
             });
         }else{
@@ -44,22 +39,22 @@ const Login = () => {
                     displayName:name.current.value,
                     photoURL:USERIMAGE
                 }).then(() => {
-                    const {uid, email, displayName, photoURL} = firebaseAuth.currentUser;
-                    dispatch(addUser({uid:uid, email:email, name:displayName, profile:photoURL}));
-                    navigate("/browse");
+                    // const {uid, email, displayName, photoURL} = firebaseAuth.currentUser;
+                    // dispatch(addUser({uid:uid, email:email, name:displayName, profile:photoURL}));
+                    // navigate("/browse");
                   }).catch((error) => {
                     setErrorMessage(error.message)
                   });
             }).catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
+                // const errorCode = error.code;
+                // const errorMessage = error.message;
                 setErrorMessage(error.message);
             });
         }
     }
     return (
         <>
-            <Header  isLogin={false}/>
+            <Header isLogin={false}/>
             <div className="relative h-screen bg-cover bg-center"  style={{ backgroundImage: `url(${BGIMAGE})` }}>
                 <div className="absolute inset-0 bg-black bg-opacity-60"></div>
                 <div className="relative z-10 flex justify-center items-center h-full">

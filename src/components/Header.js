@@ -1,31 +1,49 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Logo from '../images/logo.png'
 import { useDispatch, useSelector } from 'react-redux'
-import { signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { firebaseAuth } from '../utils/firebase';
 import { useNavigate } from 'react-router-dom';
-import { removeUser } from '../utils/userSlice';
+import { addUser, removeUser } from '../utils/userSlice';
 import USERIMAGE from '../images/netflix-user.jpg'
 const Header = ({isLogin}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userInfo = useSelector((store)=>store.user);
-  console.log(userInfo);
-  
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
-
   const handleLogout = ()=>{
     signOut(firebaseAuth).then(() => {
-      dispatch(removeUser());
-      navigate("/");
+      // dispatch(removeUser());
     }).catch((error) => {
       console.log("unable to logout");
     });
   }
+
+  useEffect(()=>{
+      const unsubscribe =  onAuthStateChanged(firebaseAuth, (user)=>{
+          if(user){
+              const {uid, email, displayName, photoURL } = firebaseAuth.currentUser;
+              dispatch(
+                  addUser({
+                      uid:uid,
+                      name:displayName,
+                      email:email,
+                      profile:photoURL
+                  })
+              );
+              navigate("/browse");
+          }else{
+              dispatch(removeUser());
+              navigate("/");
+          }
+      })
+      return ()=> unsubscribe();
+  },[]);
+
+
   const widthHeader = isLogin ? "w-full":"w-3/4";
   return (
     <div className={"absolute flex justify-between px-8 py-2 bg-gradient-to-b from-black left-0 right-0 z-10 mx-auto "+widthHeader}>
